@@ -18,6 +18,7 @@ data <- subset(data,select = c("Record.Type","Date.and.Time","Annotation","Segme
                                "Segment.4.PAR","Segment.5.PAR","Segment.6.PAR","Segment.7.PAR","Segment.8.PAR","Record.ID","Raw.Record.ID")) 
 
 # Process_by_dates ------
+#trunc(date,"hours")
 source("cept_proc_fun.R",echo = FALSE) #load processsing functions 
 
 unqDates <- unique((as.Date(data$Date.and.Time))) #year-month-day #Dates in file
