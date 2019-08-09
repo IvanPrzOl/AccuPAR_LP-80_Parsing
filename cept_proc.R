@@ -2,24 +2,35 @@
 library(XLConnect)
 require(plyr)
 require(dplyr)
+source("cept_proc_fun.R",echo = FALSE) #load processsing functions
+
+#---- Specify wich data extract
+config = data.frame(TrialNameIWIS = "HIBAP",
+                    Etapa = "veg",
+                    fechaInicio = as.POSIXct("1990/01/01"),
+                    FechaFin = as.POSIXct("1990/01/01)"))
+
 
 # Read_dataset -----
 dropboxDir <- 'C:\\Users\\IPOLIVERA\\Dropbox\\CIMMYT\\Datos_Cept_Jaz\\'
 fNames <- list.files(dropboxDir, pattern = "\\R.xlsx$") #files to process
 
 f = fNames[1] #Select one file
+f = '~/scripts-io-files/04-03-19 CEPT 1.xls'
 
-wb <- loadWorkbook(paste(dropboxDir,f,sep="")) #load excel Workbook 
+#wb <- loadWorkbook(paste(dropboxDir,f,sep="")) #load excel Workbook 
+wb <-loadWorkbook(f)
 
-data <- readWorksheet(wb,1) #Read daset from worksheet
+data <- readWorksheet(wb,2) #Read daset from worksheet
 
-#delete non used columns
+#select only useful columns
 data <- subset(data,select = c("Record.Type","Date.and.Time","Annotation","Segment.1.PAR","Segment.2.PAR","Segment.3.PAR",
                                "Segment.4.PAR","Segment.5.PAR","Segment.6.PAR","Segment.7.PAR","Segment.8.PAR","Record.ID","Raw.Record.ID")) 
 
-# Process_by_dates ------
-#trunc(date,"hours")
-source("cept_proc_fun.R",echo = FALSE) #load processsing functions 
+# Filter_by_dates and Trial ------
+annIndx <- data$Annotation[!is.na(data$Annotation)]
+grepl("SYN",data$Annotation,ignore.case = TRUE)
+
 
 unqDates <- unique((as.Date(data$Date.and.Time))) #year-month-day #Dates in file
 
