@@ -6,7 +6,7 @@
 AnnotationProc <- function(antn,nRecords = 7,segments = 1:8){ 
   recordOrder <- list("3"=c("ABV","BLW","ABV"),
                       "7"=c("ABV","BLW","ABV","ABV","ABV","ABV","ABV"))
-  labelMeans <- list("3" = c("ARRIBA","REFLEJADA","TRANSMITIDA"),
+  labelMeans <- list("3" = c("ARRIBA","REFLEJADO","ABAJO"),
                       "7" = c("ARRIBA","REFLEJADO","ESPIGA","HB","H2","H3","ABAJO"))
 
   #Check consistency if the input data
@@ -15,7 +15,7 @@ AnnotationProc <- function(antn,nRecords = 7,segments = 1:8){
   if(obs < nRecords){ #missed data, 
     return(list(originIdx = as.numeric(row.names(antn))[obs],Anotacion = antn$Annotation[obs]))
   }
-  else if(any(!(antn$Record.Type[(obs-nRecords):(obs-1)] == recordOrder[[as.as.integer(nRecords)]]))){ #Wrong record order
+  else if(any(!(antn$Record.Type[(obs-nRecords):(obs-1)] == recordOrder[[as.character(nRecords)]]))){ #Wrong record order
     return(list(originIdx = as.numeric(row.names(antn))[obs],Anotacion = antn$Annotation[obs]))
   }
   
@@ -25,12 +25,12 @@ AnnotationProc <- function(antn,nRecords = 7,segments = 1:8){
 
   parMatrix = antn[(obs-nRecords):(obs-1),parSegments] #Numeric values of PAR segments
   parMeans = rowMeans(parMatrix)
-  names(parMeans) <- labelMeans[[as.as.integer(nRecords)]] #Average in each strata
+  names(parMeans) <- labelMeans[[as.character(nRecords)]] #Average in each strata
   
-  #Output list structure
-  ot <- (c(list(originIndex = as.numeric(row.names(antn))[obs], 
+  #Output list structusubre
+  out <- (c(list(originIndex = as.numeric(row.names(antn))[obs], 
                 Fecha = trunc(antn$Date.and.Time[obs],"mins"),
                 Anotacion = antn$Annotation[obs]),
          parMeans))
-  return(ot)
+  return(out)
 }
