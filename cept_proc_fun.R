@@ -24,7 +24,7 @@ AnnotationProc <- function(antn,nRecords = 7,segments = 1:8){
                     "Segment.5.PAR","Segment.6.PAR","Segment.7.PAR","Segment.8.PAR")[segments]
 
   parMatrix = antn[(obs-nRecords):(obs-1),parSegments] #Numeric values of PAR segments
-  parMeans = rowMeans(parMatrix)
+  parMeans = apply(as.matrix(parMatrix),1,median)#rowMeans(parMatrix)
   names(parMeans) <- labelMeans[[as.character(nRecords)]] #Average in each strata
   
   parSD <- apply(parMatrix,1,sd)
