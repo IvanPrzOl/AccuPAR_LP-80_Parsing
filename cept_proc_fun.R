@@ -27,10 +27,20 @@ AnnotationProc <- function(antn,nRecords = 7,segments = 1:8){
   parMeans = rowMeans(parMatrix)
   names(parMeans) <- labelMeans[[as.character(nRecords)]] #Average in each strata
   
+  parSD <- apply(parMatrix,1,sd)
+  names(parSD) <- c("SD_ARRIBA","SD_REFLEC","SD_ABAJO")
+
+  parMin <- apply(parMatrix,1,min)
+  names(parMin) <- c("Min_ARRIBA","Min_REFLEC","Min_ABAJO")
+  parMax <- apply(parMatrix,1,max)
+  names(parMax) <- c("Max_ARRIBA","Max_REFLEC","Max_ABAJO")
+  LI <- ((parMeans["ARRIBA"]-parMeans["REFLEJADO"])-parMeans["ABAJO"])/(parMeans["ARRIBA"]-parMeans["REFLEJADO"])*100
+  names(LI) <- "LI"
+
   #Output list structusubre
   out <- (c(list(originIndex = as.numeric(row.names(antn))[obs], 
                 Fecha = trunc(antn$Date.and.Time[obs],"mins"),
                 Anotacion = antn$Annotation[obs]),
-         parMeans))
+         parMeans,parSD,parMin,parMax,LI))
   return(out)
 }
