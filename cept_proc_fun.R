@@ -1,46 +1,89 @@
-#Function to process one single annotation, the number of records may vary
-#by default it process strata measurements, it means 7 records per annotation in
-#'ABV','BLW','ABV','ABV','ABV','ABV','ABV' order
-#return a list -> OriginIdx,fecha,plot,Arriba,Reflec,Spg,HB,H2,H3,Abajo
-#if the annotation isn't consistent, return OriginIdx,Plot
-AnnotationProc <- function(antn,nRecords = 7,segments = 1:8){ 
+#'Function to process one single annotation
+#'@param antn One Annotation Records
+#'@param nRecords Num of Records per annotation
+#'@param segments A vector indicating the PAR bar segments selected
+#'@param raw Raw outputdata
+#'@param parBarStats include some stastistics of the PAR bar in the output
+#'@return a dataframe with the means of each record or raw data if selected, if the annotation is not 
+#'consistent, returns null
+AnnProc <- function(antn,nRecords = 3,segments = 1:8,raw=FALSE,parBarStats=FALSE){ 
   recordOrder <- list("3"=c("ABV","BLW","ABV"),
                       "7"=c("ABV","BLW","ABV","ABV","ABV","ABV","ABV"))
   labelMeans <- list("3" = c("ARRIBA","REFLEJADO","ABAJO"),
                       "7" = c("ARRIBA","REFLEJADO","ESPIGA","HB","H2","H3","ABAJO"))
+  # Select PAR segments to process, this can be an optinal parameter
+  parSegments <- c("Segment.1.PAR","Segment.2.PAR","Segment.3.PAR","Segment.4.PAR",
+                    "Segment.5.PAR","Segment.6.PAR","Segment.7.PAR","Segment.8.PAR")[segments]
 
-  #Check consistency if the input data
+  #Check consistency of the input data
   #Return a list with the origin index and the annotation name
   obs <- nrow(antn) 
   if(obs < nRecords){ #missed data, 
-    return(list(originIdx = as.numeric(row.names(antn))[obs],Anotacion = antn$Annotation[obs]))
+    return(NULL)#list(originIdx = as.numeric(row.names(antn))[obs],Anotacion = antn$Annotation[obs]))
   }
   else if(any(!(antn$Record.Type[(obs-nRecords):(obs-1)] == recordOrder[[as.character(nRecords)]]))){ #Wrong record order
-    return(list(originIdx = as.numeric(row.names(antn))[obs],Anotacion = antn$Annotation[obs]))
+    return(NULL)#list(originIdx = as.numeric(row.names(antn))[obs],Anotacion = antn$Annotation[obs]))
   }
-  
-  # Select PAR segments to process, this can be an optinal parameter
-  parSegments = c("Segment.1.PAR","Segment.2.PAR","Segment.3.PAR","Segment.4.PAR",
-                    "Segment.5.PAR","Segment.6.PAR","Segment.7.PAR","Segment.8.PAR")[segments]
-
+  else if(raw){
+    return(antn[,c("Date.and.Time","Annotation",parSegments)])
+  }
   parMatrix = antn[(obs-nRecords):(obs-1),parSegments] #Numeric values of PAR segments
   parMeans = apply(as.matrix(parMatrix),1,median)#rowMeans(parMatrix)
   names(parMeans) <- labelMeans[[as.character(nRecords)]] #Average in each strata
   
   parSD <- apply(parMatrix,1,sd)
-  names(parSD) <- c("SD_ARRIBA","SD_REFLEC","SD_ABAJO")
+  names(parSD) <- paste("SD_",labelMeans[[as.character(nRecords)]],sep="")
 
   parMin <- apply(parMatrix,1,min)
-  names(parMin) <- c("Min_ARRIBA","Min_REFLEC","Min_ABAJO")
+  names(parMin) <- paste("Min_",labelMeans[[as.character(nRecords)]],sep="")#c("Min_ARRIBA","Min_REFLEC","Min_ABAJO")
   parMax <- apply(parMatrix,1,max)
-  names(parMax) <- c("Max_ARRIBA","Max_REFLEC","Max_ABAJO")
-  LI <- ((parMeans["ARRIBA"]-parMeans["REFLEJADO"])-parMeans["ABAJO"])/(parMeans["ARRIBA"]-parMeans["REFLEJADO"])*100
-  names(LI) <- "LI"
-
-  #Output list structusubre
+  names(parMax) <- paste("Max_",labelMeans[[as.character(nRecords)]],sep="")#c("Max_ARRIBA","Max_REFLEC","Max_ABAJO")
+  
+  #Output list structure
   out <- (c(list(originIndex = as.numeric(row.names(antn))[obs], 
                 Fecha = trunc(antn$Date.and.Time[obs],"mins"),
-                Anotacion = antn$Annotation[obs]),
-         parMeans,parSD,parMin,parMax,LI))
+                Anotacion = antn$Annotation[obs]),parMeans))
+  if(parBarStats) {out <- c(out,parSD,parMin,parMax)}
   return(out)
 }
+
+#'Extract one annotation from dataframe given the annotation boundaries
+#'This fucntion calls directly the AnnProc function
+#'@param bdn A dataframe containing the name annotation names and their boundaries
+#'@param df ceptometer file dataframe
+#'@param antn One Annotation Records
+#'@param nRecords Num of Records per annotation
+#'@param segments A vector indicating the PAR bar segments selected
+#'@param raw Raw outputdata
+#'@param parBarStats include some stastistics of the PAR bar in the output
+#'@return a dataframe defined by AnnProc function
+SubsetByBnd <- function(bnd,df,nRecords,segments,raw,parBarStats){ 
+  return( as.data.frame( AnnProc(df[bnd[2]:bnd[3],],nRecords,segments,raw,parBarStats)) )
+}
+
+#'Subsetting one or more annotations from the ceptometer file given as a dataframe
+#'
+#'@param df A dataframe readed from the ceptometer output file
+#'@param tName A string in regex format indicating the name of the annotation(s) to be extracted
+#'@param nRecords Num of Records per annotation
+#'@param segments A vector indicating the PAR bar segments selected
+#'@param asDf function output as dataframe or list of dataframes
+#'@param raw Raw outputdata
+#'@param parBarStats include some stastistics of the PAR bar in the output
+#'@return A data frame containing a subset of the annotations
+#'
+SubsetAnn <- function(df,tName,nRecords=3,segments=1:8,asDf=TRUE,raw=FALSE,parBarStats = FALSE){
+  # Get the annotation boundaries 
+  annBndIdx <- c(0,which(!is.na(df$Annotation))) 
+  annBnd <- data.frame(Annotation = df$Annotation[!is.na(data$Annotation)],initB = annBndIdx[1:(length(annBndIdx)-1)]+1,finishB = annBndIdx[2:length(annBndIdx)])
+
+
+  annBnd <- annBnd[ grepl(tName,annBnd$Annotation,ignore.case=TRUE), ]
+  
+  if(asDf){ return (do.call('rbind',apply(annBnd,1,SubsetByBnd,df,nRecords,segments,raw,parBarStats))) }
+
+  else{ apply(annBnd,1,SubsetByBnd,df,nRecords,segments,raw,parBarStats) } 
+}
+
+
+
