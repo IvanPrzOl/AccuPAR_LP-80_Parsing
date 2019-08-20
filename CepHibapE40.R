@@ -19,7 +19,7 @@ for(k in 1:2){
 
   rownames(data) <- as.character(as.numeric(rownames(data))+1)
 
-  procesed <- SubsetAnn(data,'HIB',nRecords = 3,segments = 1:8,asDf = TRUE,raw = FALSE,parBarStats = TRUE)
+  procesed <- SubsetAnn(data,'HIB',nRecords = 3,segments = 1:8,asDf = TRUE,raw = FALSE,parBarStats = FALSE)
   
   allPlotsDfList[[length(allPlotsDfList) + 1]] <- procesed
 
@@ -35,11 +35,11 @@ allPlots <- allPlots %>% arrange(Plot)
 # Check missed or duplicated plots
 #Missed data, Plot 227 is NA, added correcting the sample order in the xlsx file
 missedP <- (1:450)[!((1:450)%in% allPlots$Plot)]
-duplicatedP <- allPlots$Plot[duplicated(allPlots$Plot)]
-if ((length(missedP)>0) | (length(duplicatedP>0))){
+duplicatedP <- allPlots$Plot %in% unique(allPlots$Plot[duplicated(allPlots$Plot)])
+if ((length(missedP)>0) | length(duplicatedP)){
   cat("There are missed or duplicated Plots\n")
   print(missedP)
-  print(allPlots[which(allPlots$Plot == duplicatedP),])
+  print(allPlots[duplicatedP,] %>% arrange(Plot))
 }
   
 # Prepare_dataset-----
@@ -52,7 +52,7 @@ head(allPlots)
 
 HIBAPE40_18 <- allPlots
 # remove_objects_for_analysis----
-remove(list = ls()[ls()!= "HIBAPE40_18"&ls()!= "HIBAPE40_16"&ls()!= "HIBAPE40_16"])
+remove(list = ls()[ls()!= "HIBAPE40_18"&ls()!= "HIBAPE40_18"&ls()!= "HIBAPE40_18"])
 #write.csv(allPlots,"C:/Users/IPOLIVERA/Documents/scripts-io-files/Cep_HIBAPE40/Procesado_18.csv",row.names = FALSE)
 
 # Analysis -----
@@ -90,24 +90,26 @@ plotSD <- function(ds,var1,retVal = FALSE){
   if(retVal){return(tmp)}
 }
 # Plots ------
-plotVarinOrder(HIBAPE40_16,'ARRIBA')
-plotVarinOrder(HIBAPE40_16,'REFLEJADO')
-plotVarinOrder(HIBAPE40_16,'ABAJO')
+#plotVarinOrder(HIBAPE40_18,'ARRIBA')
+#plotVarinOrder(HIBAPE40_18,'REFLEJADO')
+#plotVarinOrder(HIBAPE40_18,'ABAJO')
 
-par(mfrow = c(3,1))
-plotVarinOrder(HIBAPE40_18,'ARRIBA')
-plotVarinOrder(HIBAPE40_18,'REFLEJADO')
-plotVarinOrder(HIBAPE40_18,'ABAJO')
+#par(mfrow = c(3,1))
+#plotVarinOrder(HIBAPE40_18,'ARRIBA')
+#plotVarinOrder(HIBAPE40_18,'REFLEJADO')
+#plotVarinOrder(HIBAPE40_18,'ABAJO')
 
 calcCorr(HIBAPE40_18,1,2,"ARRIBA")
 
 #Correlations-----
 
 #Correlation 
-cor12 <- diag(cor(getRepInOrder(HIBAPE40_16,1)[,c("ARRIBA","REFLEJADO","ABAJO")],getRepInOrder(HIBAPE40_16,2)[,c("ARRIBA","REFLEJADO","ABAJO")]))
-cor13 <- diag(cor(getRepInOrder(HIBAPE40_16,1)[,c("ARRIBA","REFLEJADO","ABAJO")],getRepInOrder(HIBAPE40_16,3)[,c("ARRIBA","REFLEJADO","ABAJO")]))
-cor23 <- diag(cor(getRepInOrder(HIBAPE40_16,2)[,c("ARRIBA","REFLEJADO","ABAJO")],getRepInOrder(HIBAPE40_16,3)[,c("ARRIBA","REFLEJADO","ABAJO")]))
+cor12 <- diag(cor(getRepInOrder(HIBAPE40_18,1)[,c("ARRIBA","REFLEJADO","ABAJO")],getRepInOrder(HIBAPE40_18,2)[,c("ARRIBA","REFLEJADO","ABAJO")]))
+cor13 <- diag(cor(getRepInOrder(HIBAPE40_18,1)[,c("ARRIBA","REFLEJADO","ABAJO")],getRepInOrder(HIBAPE40_18,3)[,c("ARRIBA","REFLEJADO","ABAJO")]))
+cor23 <- diag(cor(getRepInOrder(HIBAPE40_18,2)[,c("ARRIBA","REFLEJADO","ABAJO")],getRepInOrder(HIBAPE40_18,3)[,c("ARRIBA","REFLEJADO","ABAJO")]))
 
 print(cor12)
 print(cor13)
 print(cor23)
+#Luz------
+Luze40 <- read.table("C:/Users/IPOLIVERA/Documents/scripts-io-files/Cep_HIBAPE40/Luze40.csv",header=TRUE,sep=",")

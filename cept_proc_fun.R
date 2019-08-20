@@ -25,25 +25,23 @@ AnnProc <- function(antn,nRecords = 3,segments = 1:8,raw=FALSE,parBarStats=FALSE
     return(NULL)#list(originIdx = as.numeric(row.names(antn))[obs],Anotacion = antn$Annotation[obs]))
   }
   else if(raw){
-    return(antn[,c("Date.and.Time","Annotation",parSegments)])
+    out <- list(Fecha = antn$Date.and.Time[(obs-nRecords):(obs-1)],
+                Anotacion = antn$Annotation[obs],
+                Plot = as.numeric(gsub("\\D","",antn$Annotation[obs])),
+                Label = labelMeans[[as.character(nRecords)]],
+                antn[(obs-nRecords):(obs-1),parSegments])
+    return(out)
   }
   parMatrix = antn[(obs-nRecords):(obs-1),parSegments] #Numeric values of PAR segments
-  parMeans = apply(as.matrix(parMatrix),1,median)#rowMeans(parMatrix)
+  parMeans = apply(as.matrix(parMatrix),1,mean)#rowMeans(parMatrix)
   names(parMeans) <- labelMeans[[as.character(nRecords)]] #Average in each strata
-  
-  parSD <- apply(parMatrix,1,sd)
-  names(parSD) <- paste("SD_",labelMeans[[as.character(nRecords)]],sep="")
-
-  parMin <- apply(parMatrix,1,min)
-  names(parMin) <- paste("Min_",labelMeans[[as.character(nRecords)]],sep="")#c("Min_ARRIBA","Min_REFLEC","Min_ABAJO")
-  parMax <- apply(parMatrix,1,max)
-  names(parMax) <- paste("Max_",labelMeans[[as.character(nRecords)]],sep="")#c("Max_ARRIBA","Max_REFLEC","Max_ABAJO")
   
   #Output list structure
   out <- (c(list(originIndex = as.numeric(row.names(antn))[obs], 
                 Fecha = trunc(antn$Date.and.Time[obs],"mins"),
-                Anotacion = antn$Annotation[obs]),parMeans))
-  if(parBarStats) {out <- c(out,parSD,parMin,parMax)}
+                Anotacion = antn$Annotation[obs],
+                Plot = as.numeric(gsub("\\D","",antn$Annotation[obs]))),parMeans))
+  if(parBarStats) {out <- c(out,getPARBarStats(parMatrix,labelMeans[[as.character(nRecords)]]))}
   return(out)
 }
 
@@ -75,7 +73,7 @@ SubsetByBnd <- function(bnd,df,nRecords,segments,raw,parBarStats){
 SubsetAnn <- function(df,tName,nRecords=3,segments=1:8,asDf=TRUE,raw=FALSE,parBarStats = FALSE){
   # Get the annotation boundaries 
   annBndIdx <- c(0,which(!is.na(df$Annotation))) 
-  annBnd <- data.frame(Annotation = df$Annotation[!is.na(data$Annotation)],initB = annBndIdx[1:(length(annBndIdx)-1)]+1,finishB = annBndIdx[2:length(annBndIdx)])
+  annBnd <- data.frame(Annotation = df$Annotation[!is.na(df$Annotation)],initB = annBndIdx[1:(length(annBndIdx)-1)]+1,finishB = annBndIdx[2:length(annBndIdx)])
 
 
   annBnd <- annBnd[ grepl(tName,annBnd$Annotation,ignore.case=TRUE), ]
@@ -85,5 +83,17 @@ SubsetAnn <- function(df,tName,nRecords=3,segments=1:8,asDf=TRUE,raw=FALSE,parBa
   else{ apply(annBnd,1,SubsetByBnd,df,nRecords,segments,raw,parBarStats) } 
 }
 
-
-
+#'Calculate some stats of the PAR from the raw anotation 
+#'@param parMat a Matrix of the PAR bar segments
+#'@param strat a vector with the name of each strata, i.e ARRIBA,REFLEC, etc.
+#'@retutn A list with the calculated params
+getPARBarStats <- function(parMat,strat){
+  parSD <- apply(parMat,1,sd)
+  names(parSD) <- paste("SD_",strat,sep="")
+  parMin <- apply(parMat,1,min)
+  names(parMin) <- paste("Min_",strat,sep="")
+  parMax <- apply(parMat,1,max)
+  names(parMax) <- paste("Max_",strat,sep="")
+  
+  return(c(parSD,parMin,parMax))
+}
