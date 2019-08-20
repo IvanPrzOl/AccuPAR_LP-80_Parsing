@@ -25,7 +25,12 @@ AnnProc <- function(antn,nRecords = 3,segments = 1:8,raw=FALSE,parBarStats=FALSE
     return(NULL)#list(originIdx = as.numeric(row.names(antn))[obs],Anotacion = antn$Annotation[obs]))
   }
   else if(raw){
-    return(antn[,c("Date.and.Time","Annotation",parSegments)])
+    out <- list(Fecha = antn$Date.and.Time[(obs-nRecords):(obs-1)],
+                Anotacion = antn$Annotation[obs],
+                Plot = as.numeric(gsub("\\D","",antn$Annotation[obs])),
+                Label = labelMeans[[as.character(nRecords)]],
+                antn[(obs-nRecords):(obs-1),parSegments])
+    return(out)
   }
   parMatrix = antn[(obs-nRecords):(obs-1),parSegments] #Numeric values of PAR segments
   parMeans = apply(as.matrix(parMatrix),1,median)#rowMeans(parMatrix)
@@ -75,7 +80,7 @@ SubsetByBnd <- function(bnd,df,nRecords,segments,raw,parBarStats){
 SubsetAnn <- function(df,tName,nRecords=3,segments=1:8,asDf=TRUE,raw=FALSE,parBarStats = FALSE){
   # Get the annotation boundaries 
   annBndIdx <- c(0,which(!is.na(df$Annotation))) 
-  annBnd <- data.frame(Annotation = df$Annotation[!is.na(data$Annotation)],initB = annBndIdx[1:(length(annBndIdx)-1)]+1,finishB = annBndIdx[2:length(annBndIdx)])
+  annBnd <- data.frame(Annotation = df$Annotation[!is.na(df$Annotation)],initB = annBndIdx[1:(length(annBndIdx)-1)]+1,finishB = annBndIdx[2:length(annBndIdx)])
 
 
   annBnd <- annBnd[ grepl(tName,annBnd$Annotation,ignore.case=TRUE), ]
