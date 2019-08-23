@@ -15,24 +15,26 @@ wb <-loadWorkbook(f) #load worbook
 dataCept2 <- readWorksheet(wb,sheet=2,startCol=1,startRow=1,endCol=24,endRow=1542) #Read daset from worksheet 
 
 #Subset annotation from the dataset, if r
-processedC1 <- SubsetAnn(dataCept1,'HIB',nRecords = 3,segments = 1:8,asDf = TRUE,raw = TRUE,parBarStats = FALSE)
+processedC1 <- SubsetAnn(dataCept1,'HIB',nRecords = 3,segments = 1:8,asDf = TRUE,raw = FALSE,parBarStats = TRUE)
 
 
 processedC1 <- processedC1 %>% subset(Anotacion!='HIBAP34-')
 rownames(processedC1) <- NULL
-processedC2 <- SubsetAnn(dataCept2,'HIB',nRecords = 3,segments = 1:8,asDf = TRUE,raw = TRUE,parBarStats = FALSE)
+processedC2 <- SubsetAnn(dataCept2,'HIB',nRecords = 3,segments = 1:8,asDf = TRUE,raw = FALSE,parBarStats = TRUE)
 rownames(processedC2) <- NULL
 
 random <- read.table("c:/Users/IPOLIVERA/Documents/scripts-io-files/Cep_HIBAPE40/HIBAP_Random.csv",header = TRUE,sep=',')
 allPlots <- rbind(processedC1,processedC2)
-#allPlots$Label <- ordered(allPlots$Label,levels=c("ARRIBA","REFLEJADO","ABAJO"))
+allPlots$Label <- ordered(allPlots$Label,levels=c("ARRIBA","REFLEJADO","ABAJO"))
 allPlots <- allPlots %>% arrange(Plot) %>% arrange(Label)
 allPlots$Ent = random$Ent
 allPlots$Rep = random$Rep
 
+
 getLI <- function(df,seg=1:8){
   #new column with mean of each row
-  df$mean <- rowMeans(df[,paste("Segment.",seg,".PAR",sep="")])
+  #df$mean <- rowMeans(df[,paste("Segment.",seg,".PAR",sep="")])
+  df$mean <- apply(df[paste("Segment.",seg,".PAR",sep="")],1,median)
   A <- subset(df,Label=="ARRIBA")$mean
   B <- subset(df,Label=="REFLEJADO")$mean
   C <- subset(df,Label=="ABAJO")$mean
@@ -56,7 +58,7 @@ cor(LIByRep)
 cor(ARRIBAByRep)
 
 #====
-lab <- "REFLEJADO"
+lab <- "ARRIBA"
 segmentsC1 <- allPlotsOrderByEnt %>% subset(Label == lab & Rep == 1) %>% select(paste("Segment.",as.character(1:8),".PAR",sep=""))
 segmentsC2 <- allPlotsOrderByEnt %>% subset(Label == lab & Rep == 2) %>% select(paste("Segment.",as.character(1:8),".PAR",sep=""))
 segmentsC3 <- allPlotsOrderByEnt %>% subset(Label == lab & Rep == 3) %>% select(paste("Segment.",as.character(1:8),".PAR",sep=""))
