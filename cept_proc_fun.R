@@ -86,7 +86,7 @@ SubsetAnn <- function(df,tName,nRecords=3,segments=1:8,asDf=TRUE,raw=FALSE,parBa
 #'Calculate some stats of the PAR from the raw anotation 
 #'@param parMat a Matrix of the PAR bar segments
 #'@param strat a vector with the name of each strata, i.e ARRIBA,REFLEC, etc.
-#'@retutn A list with the calculated params
+#'@return A list with the calculated params
 getPARBarStats <- function(parMat,strat){
   parSD <- apply(parMat,1,sd)
   names(parSD) <- paste("SD_",strat,sep="")
@@ -96,4 +96,40 @@ getPARBarStats <- function(parMat,strat){
   names(parMax) <- paste("Max_",strat,sep="")
   
   return(c(parSD,parMin,parMax))
+}
+
+#'Calculate PAR bar statististics for each record given the raw data
+#'@param rawRecords a dataframe returned by AnnProc setting the raw flag as TRUE
+#'@param rejectOutliers a boolean flag to reject outliers in each record and calcalate the stats
+#'@return a dataframe with the raw data and the calculated statistics
+getPARBarStatsRaw <- function(rawRecords,rejectOutliers = FALSE){
+  if(rejectOutliers){
+  rawRecords <- recordsOutlierReject(rawRecords)
+  }
+  cbind(rawRecords,Median = apply(rawRecords[,paste("Segment.",1:8,".PAR",sep="")],1,median,na.rm=TRUE),
+        Mean = apply(rawRecords[,paste("Segment.",1:8,".PAR",sep="")],1,mean,na.rm=TRUE),
+        Max = apply(rawRecords[,paste("Segment.",1:8,".PAR",sep="")],1,max,na.rm=TRUE),
+        Min = apply(rawRecords[,paste("Segment.",1:8,".PAR",sep="")],1,min,na.rm=TRUE),
+        Std = apply(rawRecords[,paste("Segment.",1:8,".PAR",sep="")],1,sd,na.rm=TRUE),
+        CV = apply(rawRecords[,paste("Segment.",1:8,".PAR",sep="")],1,sd,na.rm=TRUE)/apply(dsRaw[,paste("Segment.",1:8,".PAR",sep="")],1,mean,na.rm=TRUE))
+}
+
+#'Reject outliers in each record
+#'@param records a dataframe returned by AnnProc setting the raw flag as TRUE
+#'@return a dataframe without outliers in each record
+recordsOutlierReject <- function(records){
+  for (k in 1:nrow(records)){
+    bar <- as.numeric(records[k,paste("Segment.",1:8,".PAR",sep="")])
+    limSup <- mean(bar) + 1*sd(bar)
+    limInf <- mean(bar) - 1*sd(bar)
+    
+  if(records[k,'Label'] == 'ABAJO'){
+    bar[bar>limSup | bar<limInf] <-NA
+    records[k,paste("Segment.",1:8,".PAR",sep="")] <- bar
+  }else{
+    bar[bar>limSup | bar<limInf] <-NA
+    records[k,paste("Segment.",1:8,".PAR",sep="")] <- bar
+  }
+  }
+  return(records)
 }
