@@ -17,8 +17,8 @@ AnnProc <- function(antn,nRecords = 3,segments = 1:8,raw=FALSE,parBarStats=FALSE
 
   #Check consistency of the input data
   #Return a list with the origin index and the annotation name
-  obs <- nrow(antn) 
-  if(obs < nRecords){ #missed data, 
+  obs <- nrow(antn)
+  if((obs-1) < nRecords){ #missed data, 
     return(NULL)#list(originIdx = as.numeric(row.names(antn))[obs],Anotacion = antn$Annotation[obs]))
   }
   else if(any(!(antn$Record.Type[(obs-nRecords):(obs-1)] == recordOrder[[as.character(nRecords)]]))){ #Wrong record order
@@ -27,9 +27,9 @@ AnnProc <- function(antn,nRecords = 3,segments = 1:8,raw=FALSE,parBarStats=FALSE
   else if(raw){
     out <- list(Fecha = antn$Date.and.Time[(obs-nRecords):(obs-1)],
                 Anotacion = antn$Annotation[obs],
-                Plot = as.numeric(gsub("\\D","",antn$Annotation[obs])),
                 Label = labelMeans[[as.character(nRecords)]],
-                antn[(obs-nRecords):(obs-1),parSegments])
+                antn[(obs-nRecords):(obs-1),parSegments],
+                Plot = as.numeric(gsub("\\D","",antn$Annotation[obs])))
     return(out)
   }
   parMatrix = antn[(obs-nRecords):(obs-1),parSegments] #Numeric values of PAR segments
@@ -111,7 +111,7 @@ getPARBarStatsRaw <- function(rawRecords,rejectOutliers = FALSE){
         Max = apply(rawRecords[,paste("Segment.",1:8,".PAR",sep="")],1,max,na.rm=TRUE),
         Min = apply(rawRecords[,paste("Segment.",1:8,".PAR",sep="")],1,min,na.rm=TRUE),
         Std = apply(rawRecords[,paste("Segment.",1:8,".PAR",sep="")],1,sd,na.rm=TRUE),
-        CV = apply(rawRecords[,paste("Segment.",1:8,".PAR",sep="")],1,sd,na.rm=TRUE)/apply(dsRaw[,paste("Segment.",1:8,".PAR",sep="")],1,mean,na.rm=TRUE))
+        CV = apply(rawRecords[,paste("Segment.",1:8,".PAR",sep="")],1,sd,na.rm=TRUE)/apply(rawRecords[,paste("Segment.",1:8,".PAR",sep="")],1,mean,na.rm=TRUE))
 }
 
 #'Reject outliers in each record
