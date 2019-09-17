@@ -1,1 +1,1 @@
-This is a R script to order and analise the data output from the Accupar LP80 (decagon devices, now meter)
+R package to parse and order data from the AccuPAR LP-80 output files.
