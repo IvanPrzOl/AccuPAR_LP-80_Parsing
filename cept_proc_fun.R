@@ -98,7 +98,7 @@ getPARBarStats <- function(parMat,strat){
   return(c(parSD,parMin,parMax))
 }
 
-#'Calculate PAR bar statististics for each record given the raw data
+#'Calculate PAR bar statistics for each record's raw data
 #'@param rawRecords a dataframe returned by AnnProc setting the raw flag as TRUE
 #'@param rejectOutliers a boolean flag to reject outliers in each record and calcalate the stats
 #'@return a dataframe with the raw data and the calculated statistics
@@ -111,7 +111,7 @@ getPARBarStatsRaw <- function(rawRecords,rejectOutliers = FALSE){
         Max = apply(rawRecords[,paste("Segment.",1:8,".PAR",sep="")],1,max,na.rm=TRUE),
         Min = apply(rawRecords[,paste("Segment.",1:8,".PAR",sep="")],1,min,na.rm=TRUE),
         Std = apply(rawRecords[,paste("Segment.",1:8,".PAR",sep="")],1,sd,na.rm=TRUE),
-        CV = apply(rawRecords[,paste("Segment.",1:8,".PAR",sep="")],1,sd,na.rm=TRUE)/apply(rawRecords[,paste("Segment.",1:8,".PAR",sep="")],1,mean,na.rm=TRUE))
+        CV = apply(rawRecords[,paste("Segment.",1:8,".PAR",sep="")],1,sd,na.rm=TRUE)/apply(rawRecords[,paste("Segment.",1:8,".PAR",sep="")],1,mean,na.rm=TRUE)*100)
 }
 
 #'Reject outliers in each record
