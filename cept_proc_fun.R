@@ -12,8 +12,7 @@ AnnProc <- function(antn,nRecords = 3,segments = 1:8,raw=FALSE,parBarStats=FALSE
   labelMeans <- list("3" = c("ARRIBA","REFLEJADO","ABAJO"),
                       "7" = c("ARRIBA","REFLEJADO","ESPIGA","HB","H2","H3","ABAJO"))
   # Select PAR segments to process, this can be an optinal parameter
-  parSegments <- c("Segment.1.PAR","Segment.2.PAR","Segment.3.PAR","Segment.4.PAR",
-                    "Segment.5.PAR","Segment.6.PAR","Segment.7.PAR","Segment.8.PAR")[segments]
+  parSegments <- paste("Segement.",1:8,".PAR",sep="")[segments] 
 
   #Check consistency of the input data
   #Return a list with the origin index and the annotation name
