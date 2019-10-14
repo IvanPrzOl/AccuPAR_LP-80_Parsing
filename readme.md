@@ -1,3 +1,1 @@
-This is a R script to parse and order the data output from the AccuPAR LP-80.
-
-
+R package to parse and order data from the AccuPAR LP-80 output files.

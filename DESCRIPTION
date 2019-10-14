@@ -1,0 +1,14 @@
+Package: AccuPARParsing
+Title: Ceptometer(AccuPar LP-08) Processing
+Version: 0.0.1
+Authors@R: 
+    person(given = "Ivan",
+           family = "Perez",
+           role = c("aut", "cre"),
+           email = "ivan.perezolivera@hotmail.com",
+           comment = c(ORCID = "YOUR-ORCID-ID"))
+Description: Extracts and order data from the ceptometer(AccuPAR LP-80) output files
+License: What license it uses
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.1.1
