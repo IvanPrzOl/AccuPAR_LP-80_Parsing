@@ -8,6 +8,8 @@ This fucntion calls directly the AnnProc function}
 SubsetByBnd(bnd, df, nRecords, segments, raw, parBarStats)
 }
 \arguments{
+\item{bnd}{A dataframe containing the name annotation names and their boundaries}
+
 \item{df}{ceptometer file dataframe}
 
 \item{nRecords}{Num of Records per annotation}
@@ -17,10 +19,6 @@ SubsetByBnd(bnd, df, nRecords, segments, raw, parBarStats)
 \item{raw}{Raw outputdata}
 
 \item{parBarStats}{include some stastistics of the PAR bar in the output}
-
-\item{bdn}{A dataframe containing the name annotation names and their boundaries}
-
-\item{antn}{One Annotation Records}
 }
 \value{
 a dataframe defined by AnnProc function

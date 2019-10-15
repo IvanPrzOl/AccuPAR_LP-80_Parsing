@@ -19,8 +19,7 @@ AnnProc(antn, nRecords = 3, segments = 1:8, raw = FALSE,
 \item{parBarStats}{include some stastistics of the PAR bar in the output}
 }
 \value{
-a dataframe with the means of each record or raw data if selected, if the annotation is not 
-consistent, returns null
+a dataframe with the means of each record or raw data if selected, if the annotation is not
 }
 \description{
 Function to process one single annotation
