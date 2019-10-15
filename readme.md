@@ -48,5 +48,8 @@ La hoja "All Data" contiene la información detalla de cada anotación que se gu
                                      raw = TRUE)
 
 4. Dependiendo del valor pasado al parámetro raw (TRUE o FALSE), cept_procesado puede tener los siguientes formatos:
- 
 
+### **raw=TRUE**
+![Salida en Raw](/captures/procRaw.PNG "asd")
+### **raw = FALSE**
+![Salida en means](/captures/procMeans.PNG)
