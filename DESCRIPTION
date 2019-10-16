@@ -7,8 +7,8 @@ Authors@R:
            role = c("aut", "cre"),
            email = "ivan.perezolivera@hotmail.com",
            comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: Extracts and order data from the ceptometer(AccuPAR LP-80) output files
-License: What license it uses
+Description: Extracts and order data from the ceptometer(AccuPAR LP-80) output files.
+License: GPL-2
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.1
