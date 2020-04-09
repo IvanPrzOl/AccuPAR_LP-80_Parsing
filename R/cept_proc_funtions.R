@@ -50,12 +50,11 @@ ProcSingleAnn <- function(antn,nRecords = 3,segments = 1:8,raw=FALSE,parBarStats
 #'@param tName A string in regex format indicating the name of the annotation(s) to be extracted
 #'@param nRecords Num of Records per annotation
 #'@param segments A vector indicating the PAR bar segments selected
-#'@param asDf function output as dataframe or list of dataframes
 #'@param raw Raw outputdata
 #'@param parBarStats include some stastistics of the PAR bar in the output
 #'@return A data frame containing a subset of the annotations
 #'@export
-CeptProc <- function(df,tName,nRecords=3,segments=1:8,asDf=TRUE,raw=FALSE,parBarStats = FALSE){
+CeptProc <- function(df,tName,nRecords=3,segments=1:8,raw=FALSE,parBarStats = FALSE){
   # Get the annotation boundaries
   annBndIdx <- c(0,which(!is.na(df$Annotation)))
   #annBnd <- data.frame(Annotation = df$Annotation[!is.na(df$Annotation)],initB = annBndIdx[1:(length(annBndIdx)-1)]+1,finishB = annBndIdx[2:length(annBndIdx)])
@@ -65,9 +64,8 @@ CeptProc <- function(df,tName,nRecords=3,segments=1:8,asDf=TRUE,raw=FALSE,parBar
   
   separatedAnn <- apply(annBnd,1,function(x,y) y[x[2]:x[3],],df) 
 
-  if(asDf){ return (do.call('rbind',lapply(separatedAnn,ProcSingleAnn,nRecords,segments,raw,parBarStats))) }
+  return ( do.call('rbind',lapply(separatedAnn,ProcSingleAnn,nRecords,segments,raw,parBarStats)) )
 
-  else{ lapply(separatedAnn,ProcSingleAnn,nRecords,segments,raw,parBarStats) }
 }
 
 #'Calculate some stats of the PAR from the raw anotation
