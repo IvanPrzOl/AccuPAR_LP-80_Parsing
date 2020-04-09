@@ -54,13 +54,15 @@ ProcSingleAnn <- function(antn,nRecords = 3,segments = 1:8,raw=FALSE,parBarStats
 #'@param parBarStats include some stastistics of the PAR bar in the output
 #'@return A data frame containing a subset of the annotations
 #'@export
-CeptProc <- function(df,tName,nRecords=3,segments=1:8,raw=FALSE,parBarStats = FALSE){
+CeptProc <- function(df,nRecords=3,segments=1:8,raw=FALSE,parBarStats = FALSE,tName = NA){
   # Get the annotation boundaries
   annBndIdx <- c(0,which(!is.na(df$Annotation)))
   #annBnd <- data.frame(Annotation = df$Annotation[!is.na(df$Annotation)],initB = annBndIdx[1:(length(annBndIdx)-1)]+1,finishB = annBndIdx[2:length(annBndIdx)])
   annBnd <- cbind(df$Annotation[!is.na(df$Annotation)], annBndIdx[1:(length(annBndIdx)-1)]+1, annBndIdx[2:length(annBndIdx)], deparse.level = 0)
 
-  annBnd <- annBnd[ grepl(tName,annBnd[,1],ignore.case=TRUE), ]
+  if (!is.na(tName)){
+    annBnd <- annBnd[ grepl(tName,annBnd[,1],ignore.case=TRUE), ]
+  }
   
   separatedAnn <- apply(annBnd,1,function(x,y) y[x[2]:x[3],],df) 
 
