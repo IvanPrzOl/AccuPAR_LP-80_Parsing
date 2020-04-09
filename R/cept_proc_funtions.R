@@ -6,7 +6,7 @@
 #'@param raw Raw outputdata
 #'@param parBarStats include some stastistics of the PAR bar in the output
 #'@return a dataframe with the means of each record or raw data if selected, if the annotation is not
-AnnProc <- function(antn,nRecords = 3,segments = 1:8,raw=FALSE,parBarStats=FALSE){
+ProcSingleAnn <- function(antn,nRecords = 3,segments = 1:8,raw=FALSE,parBarStats=FALSE){
   recordOrder <- list("3"=c("ABV","BLW","ABV"),
                       "7"=c("ABV","BLW","ABV","ABV","ABV","ABV","ABV"))
   labelMeans <- list("3" = c("ARRIBA","REFLEJADO","ABAJO"),
@@ -45,19 +45,19 @@ AnnProc <- function(antn,nRecords = 3,segments = 1:8,raw=FALSE,parBarStats=FALSE
 }
 
 #'Extract one annotation from dataframe given the annotation boundaries
-#'This fucntion calls directly the AnnProc function
+#'This fucntion calls directly the ProcSingleAnn function
 #'@param bnd A dataframe containing the name annotation names and their boundaries
 #'@param df ceptometer file dataframe
 #'@param nRecords Num of Records per annotation
 #'@param segments A vector indicating the PAR bar segments selected
 #'@param raw Raw outputdata
 #'@param parBarStats include some stastistics of the PAR bar in the output
-#'@return a dataframe defined by AnnProc function
+#'@return a dataframe defined by ProcSingleAnn function
 SubsetByBnd <- function(bnd,df,nRecords,segments,raw,parBarStats){
-  return( as.data.frame( AnnProc(df[bnd[2]:bnd[3],],nRecords,segments,raw,parBarStats)) )
+  return( as.data.frame( ProcSingleAnn(df[bnd[2]:bnd[3],],nRecords,segments,raw,parBarStats)) )
 }
 
-#'Subsetting one or more annotations from the ceptometer file given as a dataframe
+#'Process the ceptometer file as a dataframe
 #'
 #'@param df A dataframe readed from the ceptometer output file
 #'@param tName A string in regex format indicating the name of the annotation(s) to be extracted
@@ -68,7 +68,7 @@ SubsetByBnd <- function(bnd,df,nRecords,segments,raw,parBarStats){
 #'@param parBarStats include some stastistics of the PAR bar in the output
 #'@return A data frame containing a subset of the annotations
 #'@export
-SubsetAnn <- function(df,tName,nRecords=3,segments=1:8,asDf=TRUE,raw=FALSE,parBarStats = FALSE){
+CeptProc <- function(df,tName,nRecords=3,segments=1:8,asDf=TRUE,raw=FALSE,parBarStats = FALSE){
   # Get the annotation boundaries
   annBndIdx <- c(0,which(!is.na(df$Annotation)))
   annBnd <- data.frame(Annotation = df$Annotation[!is.na(df$Annotation)],initB = annBndIdx[1:(length(annBndIdx)-1)]+1,finishB = annBndIdx[2:length(annBndIdx)])
@@ -97,7 +97,7 @@ getPARBarStats <- function(parMat,strat){
 }
 
 #'Calculate PAR bar statistics for each record's raw data
-#'@param rawRecords a dataframe returned by AnnProc setting the raw flag as TRUE
+#'@param rawRecords a dataframe returned by ProcSingleAnn setting the raw flag as TRUE
 #'@param rejectOutliers a boolean flag to reject outliers in each record and calcalate the stats
 #'@return a dataframe with the raw data and the calculated statistics
 getPARBarStatsRaw <- function(rawRecords,rejectOutliers = FALSE){
@@ -113,7 +113,7 @@ getPARBarStatsRaw <- function(rawRecords,rejectOutliers = FALSE){
 }
 
 #'Reject outliers in each record
-#'@param records a dataframe returned by AnnProc setting the raw flag as TRUE
+#'@param records a dataframe returned by ProcSingleAnn setting the raw flag as TRUE
 #'@return a dataframe without outliers in each record
 recordsOutlierReject <- function(records){
   for (k in 1:nrow(records)){
