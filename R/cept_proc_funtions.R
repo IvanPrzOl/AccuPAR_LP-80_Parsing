@@ -29,7 +29,7 @@ ProcSingleAnn <- function(antn,nRecords = 3,segments = 1:8,raw=FALSE,parBarStats
                 Label = labelMeans[[as.character(nRecords)]],
                 antn[(obs-nRecords):(obs-1),parSegments],
                 Plot = as.numeric(gsub("\\D","",antn$Annotation[obs])))
-    return(out)
+    return( as.data.frame(out))
   }
   parMatrix = antn[(obs-nRecords):(obs-1),parSegments] #Numeric values of PAR segments
   parMeans = apply(as.matrix(parMatrix),1,mean)#rowMeans(parMatrix)
@@ -41,20 +41,7 @@ ProcSingleAnn <- function(antn,nRecords = 3,segments = 1:8,raw=FALSE,parBarStats
                 Anotacion = antn$Annotation[obs],
                 Plot = as.numeric(gsub("\\D","",antn$Annotation[obs]))),parMeans))
   if(parBarStats) {out <- c(out,getPARBarStats(parMatrix,labelMeans[[as.character(nRecords)]]))}
-  return(out)
-}
-
-#'Extract one annotation from dataframe given the annotation boundaries
-#'This fucntion calls directly the ProcSingleAnn function
-#'@param bnd A dataframe containing the name annotation names and their boundaries
-#'@param df ceptometer file dataframe
-#'@param nRecords Num of Records per annotation
-#'@param segments A vector indicating the PAR bar segments selected
-#'@param raw Raw outputdata
-#'@param parBarStats include some stastistics of the PAR bar in the output
-#'@return a dataframe defined by ProcSingleAnn function
-SubsetByBnd <- function(bnd,df,nRecords,segments,raw,parBarStats){
-  return( as.data.frame( ProcSingleAnn(df[bnd[2]:bnd[3],],nRecords,segments,raw,parBarStats)) )
+  return( as.data.frame(out) )
 }
 
 #'Process the ceptometer file as a dataframe
@@ -71,14 +58,16 @@ SubsetByBnd <- function(bnd,df,nRecords,segments,raw,parBarStats){
 CeptProc <- function(df,tName,nRecords=3,segments=1:8,asDf=TRUE,raw=FALSE,parBarStats = FALSE){
   # Get the annotation boundaries
   annBndIdx <- c(0,which(!is.na(df$Annotation)))
-  annBnd <- data.frame(Annotation = df$Annotation[!is.na(df$Annotation)],initB = annBndIdx[1:(length(annBndIdx)-1)]+1,finishB = annBndIdx[2:length(annBndIdx)])
+  #annBnd <- data.frame(Annotation = df$Annotation[!is.na(df$Annotation)],initB = annBndIdx[1:(length(annBndIdx)-1)]+1,finishB = annBndIdx[2:length(annBndIdx)])
+  annBnd <- cbind(df$Annotation[!is.na(df$Annotation)], annBndIdx[1:(length(annBndIdx)-1)]+1, annBndIdx[2:length(annBndIdx)], deparse.level = 0)
 
+  annBnd <- annBnd[ grepl(tName,annBnd[,1],ignore.case=TRUE), ]
+  
+  separatedAnn <- apply(annBnd,1,function(x,y) y[x[2]:x[3],],df) 
 
-  annBnd <- annBnd[ grepl(tName,annBnd$Annotation,ignore.case=TRUE), ]
+  if(asDf){ return (do.call('rbind',lapply(separatedAnn,ProcSingleAnn,nRecords,segments,raw,parBarStats))) }
 
-  if(asDf){ return (do.call('rbind',apply(annBnd,1,SubsetByBnd,df,nRecords,segments,raw,parBarStats))) }
-
-  else{ apply(annBnd,1,SubsetByBnd,df,nRecords,segments,raw,parBarStats) }
+  else{ lapply(separatedAnn,ProcSingleAnn,nRecords,segments,raw,parBarStats) }
 }
 
 #'Calculate some stats of the PAR from the raw anotation

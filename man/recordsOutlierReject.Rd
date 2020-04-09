@@ -7,7 +7,7 @@
 recordsOutlierReject(records)
 }
 \arguments{
-\item{records}{a dataframe returned by AnnProc setting the raw flag as TRUE}
+\item{records}{a dataframe returned by ProcSingleAnn setting the raw flag as TRUE}
 }
 \value{
 a dataframe without outliers in each record

@@ -7,7 +7,7 @@
 getPARBarStatsRaw(rawRecords, rejectOutliers = FALSE)
 }
 \arguments{
-\item{rawRecords}{a dataframe returned by AnnProc setting the raw flag as TRUE}
+\item{rawRecords}{a dataframe returned by ProcSingleAnn setting the raw flag as TRUE}
 
 \item{rejectOutliers}{a boolean flag to reject outliers in each record and calcalate the stats}
 }
