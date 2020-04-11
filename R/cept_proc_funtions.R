@@ -1,47 +1,42 @@
 #'Function to process one single annotation
 #' @importFrom stats sd median
-#'@param antn One Annotation Records
-#'@param nRecords Num of Records per annotation
-#'@param segments A vector indicating the PAR bar segments selected
-#'@param raw Raw outputdata
-#'@param parBarStats include some stastistics of the PAR bar in the output
-#'@return a dataframe with the means of each record or raw data if selected, if the annotation is not
-ProcSingleAnn <- function(antn,nRecords = 3,segments = 1:8,raw=FALSE,parBarStats=FALSE){
-  recordOrder <- list("3"=c("ABV","BLW","ABV"),
-                      "7"=c("ABV","BLW","ABV","ABV","ABV","ABV","ABV"))
-  labelMeans <- list("3" = c("ARRIBA","REFLEJADO","ABAJO"),
-                      "7" = c("ARRIBA","REFLEJADO","ESPIGA","HB","H2","H3","ABAJO"))
-  # Select PAR segments to process, this can be an optinal parameter
-  parSegments <- paste("Segment.",1:8,".PAR",sep="")[segments]
 
-  #Check consistency of the input data
-  #Return a list with the origin index and the annotation name
+ProcSingleAnn <- function(antn,segments = 1:8,raw=FALSE,parBarStats=FALSE,rOrder,trialName){
+  #fill anotation cells
+  antn$Annotation <- antn$Annotation[!is.na(antn$Annotation)]
+  #remove last row
+  antn <- antn[-nrow(antn),]
   obs <- nrow(antn)
-  if((obs-1) < nRecords){ #missed data,
-    return(NULL)#list(originIdx = as.numeric(row.names(antn))[obs],Anotacion = antn$Annotation[obs]))
+  #delete non-used columns
+  antn <- antn[,-c(4:12,21:23)]
+  if (raw){
+    if(!is.na(trialName)){
+            sep_annotation <- stringi::stri_match(antn$Annotation[obs],regex = sprintf('(%s)(\\d*)(.*)',trialName) )
+            sep_annotation[sep_annotation == ""] <- NA
+            antn$Trial.name <- sep_annotation[2] 
+            antn$Plot <- sep_annotation[3]
+            antn$Plot.obs <- sep_annotation[4]
+    }
+    if (!is.na(rOrder)){
+      if(!(rOrder == paste(substr(antn$Record.Type,1,1) ,collapse = ''))){
+        print ( sprintf('plot %s cannot be extracted',antn$Annotation[obs]) )
+        print(paste(substr(antn$Record.Type,1,1) ,collapse = ''))
+        return(NULL)
+      }
+    }
+    unique_records <- make.unique(antn$Record.Type,sep='')
+    record_order <- as.integer(gsub('\\D','',unique_records))
+    record_order[is.na(record_order)] <- 0
+    record_order <- record_order + 1
+    antn$Record.Type <- apply(cbind(seq(1:obs),antn$Record.Type,deparse.level = 0),1,function(z) paste(z[1],z[2],sep=''))
+    
+    return(antn)
+  
   }
-  else if(any(!(antn$Record.Type[(obs-nRecords):(obs-1)] == recordOrder[[as.character(nRecords)]]))){ #Wrong record order
-    return(NULL)#list(originIdx = as.numeric(row.names(antn))[obs],Anotacion = antn$Annotation[obs]))
+  else{
+    # Process function
+    return(NULL)
   }
-  else if(raw){
-    out <- list(Fecha = antn$Date.and.Time[(obs-nRecords):(obs-1)],
-                Anotacion = antn$Annotation[obs],
-                Label = labelMeans[[as.character(nRecords)]],
-                antn[(obs-nRecords):(obs-1),parSegments],
-                Plot = as.numeric(gsub("\\D","",antn$Annotation[obs])))
-    return( as.data.frame(out))
-  }
-  parMatrix = antn[(obs-nRecords):(obs-1),parSegments] #Numeric values of PAR segments
-  parMeans = apply(as.matrix(parMatrix),1,mean)#rowMeans(parMatrix)
-  names(parMeans) <- labelMeans[[as.character(nRecords)]] #Average in each strata
-
-  #Output list structure
-  out <- (c(list(originIndex = as.numeric(row.names(antn))[obs],
-                Fecha = trunc(antn$Date.and.Time[obs],"mins"),
-                Anotacion = antn$Annotation[obs],
-                Plot = as.numeric(gsub("\\D","",antn$Annotation[obs]))),parMeans))
-  if(parBarStats) {out <- c(out,getPARBarStats(parMatrix,labelMeans[[as.character(nRecords)]]))}
-  return( as.data.frame(out) )
 }
 
 #'Process the ceptometer file as a dataframe
@@ -54,19 +49,22 @@ ProcSingleAnn <- function(antn,nRecords = 3,segments = 1:8,raw=FALSE,parBarStats
 #'@param parBarStats include some stastistics of the PAR bar in the output
 #'@return A data frame containing a subset of the annotations
 #'@export
-CeptProc <- function(df,nRecords=3,segments=1:8,raw=FALSE,parBarStats = FALSE,tName = NA){
+CeptProc <- function(df,segments=1:8,raw=FALSE,parBarStats = FALSE,nRecords = NA ,tName = NA){
   # Get the annotation boundaries
   annBndIdx <- c(0,which(!is.na(df$Annotation)))
   #annBnd <- data.frame(Annotation = df$Annotation[!is.na(df$Annotation)],initB = annBndIdx[1:(length(annBndIdx)-1)]+1,finishB = annBndIdx[2:length(annBndIdx)])
   annBnd <- cbind(df$Annotation[!is.na(df$Annotation)], annBndIdx[1:(length(annBndIdx)-1)]+1, annBndIdx[2:length(annBndIdx)], deparse.level = 0)
 
-  if (!is.na(tName)){
+  if (!is.na(tName) && any(grepl(tName,annBnd[,1],ignore.case=TRUE))){
     annBnd <- annBnd[ grepl(tName,annBnd[,1],ignore.case=TRUE), ]
   }
-  
-  separatedAnn <- apply(annBnd,1,function(x,y) y[x[2]:x[3],],df) 
+  else{
+    return(NULL)
+  }
 
-  return ( do.call('rbind',lapply(separatedAnn,ProcSingleAnn,nRecords,segments,raw,parBarStats)) )
+  separatedAnn <- apply(annBnd,1,function(x,y) y[x[2]:x[3],],df)
+
+  return ( do.call('rbind',lapply(separatedAnn,ProcSingleAnn,segments,raw,parBarStats,nRecords,tName)) )
 
 }
 
