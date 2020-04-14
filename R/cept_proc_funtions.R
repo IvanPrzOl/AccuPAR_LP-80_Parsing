@@ -1,7 +1,7 @@
 #' @importFrom stats sd median
 
 #'Function to process one single annotation
-ProcSingleAnn <- function(singleAnotation,segments = 1:8,raw=FALSE,parBarStatistics=FALSE,recordOrder,trialName){
+ProcSingleAnn <- function(singleAnotation,segments,raw,parBarStatistics,recordOrder,trialName){
   #fill anotation cells
   singleAnotation$Annotation <- singleAnotation$Annotation[!is.na(singleAnotation$Annotation)]
   #remove last row
@@ -49,7 +49,7 @@ ProcSingleAnn <- function(singleAnotation,segments = 1:8,raw=FALSE,parBarStatist
 #'@param parBarStatistics A boolean, include some stastistics of the PARbar in the output
 #'@return A data frame containing all or a subset of the annotations
 #'@export
-CeptProc <- function(ceptData,segments=1:8,raw=FALSE,parBarStatistics = FALSE,recordOrder = NA ,trialName = NA){
+CeptProc <- function(ceptData,segments=1:8,raw=TRUE,parBarStatistics = FALSE,recordOrder = NA ,trialName = NA){
   # Get the annotation boundaries
   annBndIdx <- c(0,which(!is.na(ceptData$Annotation)))
   #annBnd <- data.frame(Annotation = ceptData$Annotation[!is.na(ceptData$Annotation)],initB = annBndIdx[1:(length(annBndIdx)-1)]+1,finishB = annBndIdx[2:length(annBndIdx)])
