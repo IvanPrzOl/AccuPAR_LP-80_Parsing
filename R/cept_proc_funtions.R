@@ -13,14 +13,15 @@ ProcSingleAnn <- function(singleAnotation,segments,raw,parBarStatistics,recordOr
     if(!is.na(trialName)){
             sep_annotation <- stringi::stri_match(singleAnotation$Annotation[obs],regex = sprintf('(%s)(\\d*)(.*)',trialName) )
             sep_annotation[sep_annotation == ""] <- NA
-            singleAnotation$Trial.name <- sep_annotation[2] 
+            singleAnotation$Trial.name <- sep_annotation[2]
             singleAnotation$Plot <- sep_annotation[3]
             singleAnotation$Plot.obs <- sep_annotation[4]
     }
     if (!is.na(recordOrder)){
       if(!(recordOrder == paste(substr(singleAnotation$Record.Type,1,1) ,collapse = ''))){
-        print ( sprintf('plot %s cannot be extracted',singleAnotation$Annotation[obs]) )
-        print(paste(substr(singleAnotation$Record.Type,1,1) ,collapse = ''))
+        message( sprintf('%s no coincide %s con %s',singleAnotation$Annotation[obs],
+                         paste(substr(singleAnotation$Record.Type,1,1) ,collapse = ''),
+                         recordOrder))
         return(NULL)
       }
     }
@@ -29,9 +30,9 @@ ProcSingleAnn <- function(singleAnotation,segments,raw,parBarStatistics,recordOr
     record_order[is.na(record_order)] <- 0
     record_order <- record_order + 1
     singleAnotation$Record.Type <- apply(cbind(seq(1:obs),singleAnotation$Record.Type,deparse.level = 0),1,function(z) paste(z[1],z[2],sep=''))
-    
+
     return(singleAnotation)
-  
+
   }
   else{
     # Process function
