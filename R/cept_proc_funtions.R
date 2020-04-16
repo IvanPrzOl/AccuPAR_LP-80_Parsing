@@ -4,6 +4,7 @@
 ProcSingleAnn <- function(singleAnotation,segments,raw,parBarStatistics,recordOrder,trialName){
   #fill anotation cells
   singleAnotation$Annotation <- singleAnotation$Annotation[!is.na(singleAnotation$Annotation)]
+  if(nrow(singleAnotation)<2) return(NULL) #discard empty annotations
   #remove last row
   singleAnotation <- singleAnotation[-nrow(singleAnotation),]
   obs <- nrow(singleAnotation)
