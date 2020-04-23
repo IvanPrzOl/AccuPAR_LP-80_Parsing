@@ -1,6 +1,6 @@
 #' @importFrom stats sd median
 
-#'Function to process one single annotation
+#Function to process one single annotation
 ProcSingleAnn <- function(singleAnotation,segments,raw,parBarStatistics,recordOrder,trialName){
   #fill anotation cells
   singleAnotation$Annotation <- singleAnotation$Annotation[!is.na(singleAnotation$Annotation)]
@@ -45,7 +45,7 @@ ProcSingleAnn <- function(singleAnotation,segments,raw,parBarStatistics,recordOr
 #'Process the ceptometer file as a dataframe
 #'
 #'@param ceptData A dataframe readed from the ceptometer output file
-#'@param trialName A string in regex format indicating the name of the annotation(s) to be extracted
+#'@param trialName A string in regex format indicating the name of the annotation to be extracted
 #'@param recordOrder A string of the expected record order, i.e 'ABA' means 'ABV','BLW','AVB'
 #'@param segments A vector indicating the PAR bar segments to be extracted
 #'@param raw A boolean to output data in raw format
@@ -71,10 +71,7 @@ CeptProc <- function(ceptData,segments=1:8,raw=TRUE,parBarStatistics = FALSE,rec
 
 }
 
-#'Calculate some stats of the PAR from the raw anotation
-#'@param parMat a Matrix of the PAR bar segments
-#'@param strat a vector with the name of each strata, i.e ARRIBA,REFLEC, etc.
-#'@return A list with the calculated params
+#Calculate some stats of the PAR from the raw anotation
 getPARBarStats <- function(parMat,strat){
   parSD <- apply(parMat,1,sd)
   names(parSD) <- paste("SD_",strat,sep="")
@@ -86,10 +83,7 @@ getPARBarStats <- function(parMat,strat){
   return(c(parSD,parMin,parMax))
 }
 
-#'Calculate PAR bar statistics for each record's raw data
-#'@param rawRecords a dataframe returned by ProcSingleAnn setting the raw flag as TRUE
-#'@param rejectOutliers a boolean flag to reject outliers in each record and calcalate the stats
-#'@return a dataframe with the raw data and the calculated statistics
+#Calculate PAR bar statistics for each record's raw data
 getPARBarStatsRaw <- function(rawRecords,rejectOutliers = FALSE){
   if(rejectOutliers){
   rawRecords <- recordsOutlierReject(rawRecords)
@@ -102,9 +96,7 @@ getPARBarStatsRaw <- function(rawRecords,rejectOutliers = FALSE){
         CV = apply(rawRecords[,paste("Segment.",1:8,".PAR",sep="")],1,sd,na.rm=TRUE)/apply(rawRecords[,paste("Segment.",1:8,".PAR",sep="")],1,mean,na.rm=TRUE)*100)
 }
 
-#'Reject outliers in each record
-#'@param records a dataframe returned by ProcSingleAnn setting the raw flag as TRUE
-#'@return a dataframe without outliers in each record
+#Reject outliers in each record
 recordsOutlierReject <- function(records){
   for (k in 1:nrow(records)){
     bar <- as.numeric(records[k,paste("Segment.",1:8,".PAR",sep="")])
