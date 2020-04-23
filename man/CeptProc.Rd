@@ -4,26 +4,24 @@
 \alias{CeptProc}
 \title{Process the ceptometer file as a dataframe}
 \usage{
-CeptProc(df, tName, nRecords = 3, segments = 1:8, asDf = TRUE,
-  raw = FALSE, parBarStats = FALSE)
+CeptProc(ceptData, segments = 1:8, raw = TRUE,
+  parBarStatistics = FALSE, recordOrder = NA, trialName = NA)
 }
 \arguments{
-\item{df}{A dataframe readed from the ceptometer output file}
+\item{ceptData}{A dataframe readed from the ceptometer output file}
 
-\item{tName}{A string in regex format indicating the name of the annotation(s) to be extracted}
+\item{segments}{A vector indicating the PAR bar segments to be extracted}
 
-\item{nRecords}{Num of Records per annotation}
+\item{raw}{A boolean to output data in raw format}
 
-\item{segments}{A vector indicating the PAR bar segments selected}
+\item{parBarStatistics}{A boolean, include some stastistics of the PARbar in the output}
 
-\item{asDf}{function output as dataframe or list of dataframes}
+\item{recordOrder}{A string of the expected record order, i.e 'ABA' means 'ABV','BLW','AVB'}
 
-\item{raw}{Raw outputdata}
-
-\item{parBarStats}{include some stastistics of the PAR bar in the output}
+\item{trialName}{A string in regex format indicating the name of the annotation to be extracted}
 }
 \value{
-A data frame containing a subset of the annotations
+A data frame containing all or a subset of the annotations
 }
 \description{
 Process the ceptometer file as a dataframe
