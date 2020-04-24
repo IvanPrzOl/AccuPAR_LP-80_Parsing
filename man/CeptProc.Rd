@@ -4,8 +4,14 @@
 \alias{CeptProc}
 \title{Process the ceptometer file as a dataframe}
 \usage{
-CeptProc(ceptData, segments = 1:8, raw = TRUE,
-  parBarStatistics = FALSE, recordOrder = NA, trialName = NA)
+CeptProc(
+  ceptData,
+  segments = 1:8,
+  raw = TRUE,
+  parBarStatistics = FALSE,
+  recordOrder = NA,
+  trialName = NA
+)
 }
 \arguments{
 \item{ceptData}{A dataframe readed from the ceptometer output file}

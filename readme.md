@@ -1,29 +1,35 @@
-# R package to parse and order data from the AccuPAR LP-80 output files.
+# Paquete en R para extraer y separar mediciones tomadas con el ceptómetro AccuPAR LP-80
 ***
 
-## Instalación
-Antes de instalar este paquete hay que instalar la herramienta devtools ejecutanto el siguiente comando en R studio
+## Requisitos
+- Instalar rtools para la version de R correspondiente
 
-    install.library("devtools")
+https://cran.r-project.org/bin/windows/Rtools/history.html
 
-Instalar el paquete para procesar datos del ceptómetro con:
+- Instalar el paquete devtools
     
+        install.package("devtools")
+
+## Instalación
+
+Copiar y ejecutar el siguiente comando en la terminal de R:
+
     devtools::install_github("IvanPrzOl/AccuPAR_LP-80_Parsing")
 
 ***
-## Descripción del archivo de salida
+## Guía de usuario
 El ceptómetro LP-80 puede exportar datos en diferentes formatos de salida como .csv, .txt o .xls  
-El formato .xls es un archivo de excel dos hojas:
+El formato .xls es un archivo de excel con dos hojas: "Summary Data" y "All Data"
 
 ![Ejemplo de archivo](/captures/outputFile_Summary.PNG)
 
 ![Ejemplo de archivo](/captures/outputFile_AllData.PNG)
 
-La hoja "Summary Data" contiene los promedios de cada anotación guardada en el ceptómetro.
+La hoja "Summary Data" muestra los promedios de cada anotación incluida en el archivo.
 
-La hoja "All Data" contiene la información detalla de cada anotación que se guardó en el ceptómetro y es la hoja que nos interesa procesar.
+La hoja "All Data" contiene la información detalla de cada anotación tomada con el ceptómetro y es la hoja que se debe procesar.
 
-## Uso
+### Ejemplo de uso en R
 1. Cargar el paquete a la sesión de R con: 
     
         library(AccuPARParsing) 
@@ -32,22 +38,18 @@ La hoja "All Data" contiene la información detalla de cada anotación que se gu
     Ejemplo:
         
         library(xslx)
-        cept_data <- read.xlsx("cept_file.xls",sheetIndex = 2, header = TRUE) 
+        cept_data <- read.xlsx("cept_file.xls",sheetIndex = "All Data", header = TRUE) 
         
-3. Llamar a la función SubsetAnn para procesar los datos del ceptometro indicando los siguientes parámetros.
+3. Llamar a la función CeptProc:
         
-        # df, dataframe importado del archivo excel.
-        # tName, Iniciales del ensayo que se desea extraer.
-        # nRecords, Número de muestras tomadas por cada anotación que corresponden a cada uno de los estratos medidos.
-        # segments, El número de los segmentos a extraer.
-        # raw, Indica si la salida de la función contiene los promedios de cada estrato o los datos crudos.
-        cept_procesado <- SubsetAnn( df = cept_data,
-                                     tName = "HIB", 
-                                     nRecords =3, 
-                                     segments = 1:8,
-                                     raw = TRUE)
+        raw_annotations <- CeptProc(ceptData = cept_data, trialName = 'SYN')
+La función acepta los siguientes argumentos:
+- ceptData: nombre de la variable del dataframe a procesar.
+- trialName: abreviación del ensayo que se desea extraer.
+- segments: un vector (1:8) indicando los segmentos a extraer.
+- recordOrder: una cadena de texto de la forma 'ABA' para indicar el orden de registro de las anotaciones, ej: 'ABA' para "ABV", "BLW", "ABV".        
 
-4. Dependiendo del valor pasado al parámetro raw (TRUE o FALSE), cept_procesado puede tener los siguientes formatos:
+4. Dependiendo del valor pasado al parámetro raw (TRUE o FALSE), cept_procesado puede tener los siguientes formatos de salida:
 
 ### **raw=TRUE**
 ![Salida en Raw](/captures/procRaw.PNG "asd")
