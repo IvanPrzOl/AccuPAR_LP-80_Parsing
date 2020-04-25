@@ -31,7 +31,10 @@ ProcSingleAnn <- function(singleAnotation,segments,raw,parBarStatistics,recordOr
     record_order[is.na(record_order)] <- 0
     record_order <- record_order + 1
     singleAnotation$Record.Order <- paste(substr(singleAnotation$Record.Type,1,1) ,collapse = '')
-    singleAnotation$Record.Type <- apply(cbind(seq(1:obs),singleAnotation$Record.Type,deparse.level = 0),1,function(z) paste(z[1],z[2],sep=''))
+    singleAnotation$Record.Seq <- seq(1,obs)
+    #Reorder columns
+    nc <- ncol(singleAnotation)
+    singleAnotation <- singleAnotation[,c(1,nc,2:3,(nc-4):(nc-1),4:11)]
 
     return(singleAnotation)
 
