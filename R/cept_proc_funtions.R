@@ -32,6 +32,7 @@ ProcSingleAnn <- function(singleAnotation,segments,raw,parBarStatistics,recordOr
     record_order <- record_order + 1
     singleAnotation$Record.Order <- paste(substr(singleAnotation$Record.Type,1,1) ,collapse = '')
     singleAnotation$Record.Seq <- seq(1,obs)
+    singleAnotation$Date.and.Time <- mean(lubridate::ymd_hms(singleAnotation$Date.and.Time,tz="MST"))
     #Reorder columns
     nc <- ncol(singleAnotation)
     singleAnotation <- singleAnotation[,c(1,nc,2:3,(nc-4):(nc-1),4:11)]
